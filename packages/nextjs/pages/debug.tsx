@@ -1,23 +1,14 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import { useLocalStorage } from "usehooks-ts";
-import { Abi } from "viem";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, ContractUI } from "~~/components/scaffold-eth";
-import { ExternalContractUI } from "~~/components/scaffold-eth/Contract/ExternalContractUI";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { ContractName, GenericContract } from "~~/utils/scaffold-eth/contract";
+import { ContractName } from "~~/utils/scaffold-eth/contract";
 import { getContractNames } from "~~/utils/scaffold-eth/contractNames";
 
 const selectedContractStorageKey = "scaffoldEth2.selectedContract";
 const contractNames = getContractNames();
-
-// 0xdDf909471e20A8Ada926e412014082Fc321279B4
-
-type IExternalContract = {
-  name: string;
-  contract: GenericContract;
-};
 
 const Debug: NextPage = () => {
   const [selectedContract, setSelectedContract] = useLocalStorage<ContractName>(
@@ -31,7 +22,6 @@ const Debug: NextPage = () => {
   const [contractName, setContractName] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");
   const [selectedDeployedContract, setSelectedDeployedContract] = useState<ContractName>("ERC6551Account");
-  const [externalContracts, setExternalContracts] = useState<IExternalContract[]>([]);
 
   const { data: deployedContractData } = useDeployedContractInfo(selectedDeployedContract);
 
@@ -41,19 +31,19 @@ const Debug: NextPage = () => {
     }
   }, [selectedContract, setSelectedContract]);
 
-  const createExternalContract = (e: FormEvent) => {
+  const createExternalContract = async (e: FormEvent) => {
     e.preventDefault();
-    setExternalContracts([
-      ...externalContracts,
-      {
-        name: contractName,
-        contract: {
-          address: contractAddress,
-          abi: deployedContractData?.abi as Abi,
-          inheritedFunctions: deployedContractData?.inheritedFunctions,
-        },
+    await fetch("/api/external-abi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    ]);
+      body: JSON.stringify({
+        name: contractName,
+        address: contractAddress,
+        abi: deployedContractData?.abi,
+      }),
+    });
     setContractName("");
     setContractAddress("");
     setSelectedDeployedContract("ERC6551Account");
@@ -84,17 +74,6 @@ const Debug: NextPage = () => {
                     }}
                   >
                     {contractName}
-                  </button>
-                ))}
-                {externalContracts.map((externalContract, index) => (
-                  <button
-                    className={`btn btn-secondary btn-sm normal-case font-thin`}
-                    key={index}
-                    onClick={() => {
-                      setSelectedExternalContract(externalContract.name);
-                    }}
-                  >
-                    {externalContract.name}
                   </button>
                 ))}
                 <button
@@ -157,15 +136,6 @@ const Debug: NextPage = () => {
                 key={contractName}
                 contractName={contractName}
                 className={contractName === selectedContract && selectedExternalContract === "" ? "" : "hidden"}
-              />
-            ))}
-            {externalContracts.map((externalContract, index) => (
-              <ExternalContractUI
-                key={index}
-                address={externalContract.contract.address}
-                contract={externalContract.contract}
-                contractName="external contract"
-                className={externalContract.name === selectedExternalContract ? "" : "hidden"}
               />
             ))}
           </>
