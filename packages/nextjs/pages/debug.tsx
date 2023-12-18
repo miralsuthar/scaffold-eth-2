@@ -1,9 +1,8 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { useLocalStorage } from "usehooks-ts";
 import { MetaHeader } from "~~/components/MetaHeader";
-import { AddressInput, ContractUI } from "~~/components/scaffold-eth";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { ContractUI, ExternalContractModal } from "~~/components/scaffold-eth";
 import { ContractName } from "~~/utils/scaffold-eth/contract";
 import { getContractNames } from "~~/utils/scaffold-eth/contractNames";
 
@@ -16,38 +15,13 @@ const Debug: NextPage = () => {
     contractNames[0],
   );
 
-  const modalRef = useRef<HTMLDialogElement>(null);
-
   const [selectedExternalContract, setSelectedExternalContract] = useState<string>("");
-  const [contractName, setContractName] = useState<string>("");
-  const [contractAddress, setContractAddress] = useState<string>("");
-  const [selectedDeployedContract, setSelectedDeployedContract] = useState<ContractName>("ERC6551Account");
-
-  const { data: deployedContractData } = useDeployedContractInfo(selectedDeployedContract);
 
   useEffect(() => {
     if (!contractNames.includes(selectedContract)) {
       setSelectedContract(contractNames[0]);
     }
   }, [selectedContract, setSelectedContract]);
-
-  const createExternalContract = async (e: FormEvent) => {
-    e.preventDefault();
-    await fetch("/api/external-abi", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: contractName,
-        address: contractAddress,
-        abi: deployedContractData?.abi,
-      }),
-    });
-    setContractName("");
-    setContractAddress("");
-    setSelectedDeployedContract("ERC6551Account");
-  };
 
   return (
     <>
@@ -76,58 +50,8 @@ const Debug: NextPage = () => {
                     {contractName}
                   </button>
                 ))}
-                <button
-                  onClick={() => {
-                    modalRef.current?.showModal();
-                  }}
-                  className={`btn btn-secondary btn-sm normal-case font-thin`}
-                >
-                  +
-                </button>
-                <dialog ref={modalRef} id="my_modal_1" className="modal">
-                  <div className="modal-box space-y-8">
-                    <h3 className="text-2xl font-bold">External Contract</h3>
-                    <form
-                      onSubmit={e => {
-                        createExternalContract(e);
-                      }}
-                      className="flex flex-col gap-6"
-                    >
-                      <input
-                        type="text"
-                        className="w-full bg-transparent rounded-full px-4 bg-base-200 border py-2"
-                        value={contractName}
-                        onChange={e => setContractName(e.target.value)}
-                        placeholder="Contract Name"
-                      />
-                      <AddressInput
-                        placeholder="Contract Address"
-                        value={contractAddress}
-                        onChange={value => setContractAddress(value)}
-                      />
-                      <select
-                        value={selectedDeployedContract}
-                        onChange={e =>
-                          setSelectedDeployedContract(e.target.value as "ERC6551Account" | "ERC6551Registry" | "NFT")
-                        }
-                        className="select w-full bg-transparent rounded-full px-4 bg-base-200 border border-gray-300 py-2"
-                      >
-                        <option disabled selected>
-                          Pick your abi from deployed contract
-                        </option>
-                        {contractNames.length > 1 &&
-                          contractNames.map(contractName => (
-                            <option key={contractName} value={contractName}>
-                              {contractName}
-                            </option>
-                          ))}
-                      </select>
-                      <button className="border rounded-full py-1 hover:bg-gray-800" type="submit">
-                        create
-                      </button>
-                    </form>
-                  </div>
-                </dialog>
+                {/* TODO: add modal here  */}
+                <ExternalContractModal contractNames={contractNames} />
               </div>
             )}
 
