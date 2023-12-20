@@ -30,7 +30,7 @@ git clone https://github.com/miralsuthar/scaffold-eth-2.git
 
 cd scaffold-eth-2
 
-git checkout external-contract-ui
+git checkout feat/external-contract-ui
 ```
 
 ```bash
