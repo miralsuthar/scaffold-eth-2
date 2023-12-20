@@ -50,7 +50,6 @@ const Debug: NextPage = () => {
                     {contractName}
                   </button>
                 ))}
-                {/* TODO: add modal here  */}
                 <ExternalContractModal contractNames={contractNames} />
               </div>
             )}
