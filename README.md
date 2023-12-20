@@ -13,7 +13,7 @@ This function helps builders easily connect with and use smart contracts that we
 - [x] Then fill up the infos, like:
 - Name: `name of the external contract`
 - Address: `A contract address that you want to interact with`
-- Contract: `Select from the pre deploy contract that ABI match with your contract address`
+- Contract: `Select from the pre deploy contract whose ABI is better match with your contract address`
   
 <img width="1624" alt="Screenshot 2023-12-20 at 4 56 29 PM" src="https://github.com/miralsuthar/scaffold-eth-2/assets/57826091/24c00c55-15d2-4210-8924-e79a38ca44c4">
 
